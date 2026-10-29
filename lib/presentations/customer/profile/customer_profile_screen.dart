@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kaam_fast/services/storage_service.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class CustomerProfileScreen extends StatefulWidget {
@@ -135,7 +136,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                         color: primary.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.card_giftcard_rounded, color: primary, size: 24),
+                      child: AppVectorAssets.svg(AppVectorAssets.svgGiftReferral, width: 24, height: 24),
                     ),
                     14.sBW,
                     Expanded(

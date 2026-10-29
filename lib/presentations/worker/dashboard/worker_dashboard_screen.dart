@@ -14,6 +14,7 @@ import 'package:kaam_fast/utils/constants/app_constants.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/animated_radar.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/status_badge.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
@@ -83,13 +84,16 @@ class _WorkerDashboardScreenState extends State<WorkerDashboardScreen> {
                         Row(
                           children: [
                             Container(
-                              width: 46,
-                              height: 46,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: emeraldGradient,
+                                border: Border.all(color: kGreen, width: 2),
                               ),
-                              child: const Icon(Icons.handyman_rounded, color: kWhite, size: 24),
+                              child: AppVectorAssets.networkImage(
+                                url: AppVectorAssets.avatarCaptain1,
+                                width: 44,
+                                height: 44,
+                                borderRadius: BorderRadius.circular(22),
+                              ),
                             ),
                             10.sBW,
                             Column(

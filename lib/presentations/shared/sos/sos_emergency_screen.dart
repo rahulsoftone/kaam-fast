@@ -8,6 +8,8 @@ import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class SosEmergencyScreen extends StatefulWidget {
   final String? bookingId;
@@ -114,9 +116,8 @@ class _SosEmergencyScreenState extends State<SosEmergencyScreen> with SingleTick
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
+        leading: AppBackButton(
+          fallbackRoute: widget.isWorker ? AppRoutes.workerDashboard : AppRoutes.customerHome,
         ),
         title: Text(
           'EMERGENCY SOS',

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kaam_fast/model/booking/category_model.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/interactive_map_canvas.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
@@ -26,6 +27,7 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
     {'id': 'electrician', 'label': 'Electricians (11m)', 'icon': Icons.bolt_rounded},
     {'id': 'ac-technician', 'label': 'AC Repair (9m)', 'icon': Icons.ac_unit_rounded},
     {'id': 'carpenter', 'label': 'Carpenters (14m)', 'icon': Icons.carpenter_rounded},
+    {'id': 'painter', 'label': 'Painters (8m)', 'icon': Icons.format_paint_rounded},
   ];
 
   @override
@@ -35,12 +37,13 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fullscreen Interactive Dark Real Map
+          // Fullscreen Interactive Real FlutterMap (CartoDB / OpenStreetMap)
           Positioned.fill(
             child: InteractiveMapCanvas(
               showTechnicians: true,
               showTrackingRoute: false,
               categoryFilter: _selectedTradeFilter,
+              topControlsPadding: 145,
               onPinChanged: (pin) {
                 setState(() => _selectedCaptain = pin);
               },
@@ -57,14 +60,14 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
                 children: [
                   // Location Header Pill
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: darkBg.withValues(alpha: 0.92),
+                      color: darkBg.withValues(alpha: 0.94),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: darkBorder),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withValues(alpha: 0.35),
                           blurRadius: 16,
                         ),
                       ],
@@ -74,6 +77,26 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
                       children: [
                         Row(
                           children: [
+                            if (Navigator.of(context).canPop()) ...[
+                              InkWell(
+                                onTap: () => context.pop(),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: darkSurface,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: darkBorder),
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_back_ios_new_rounded,
+                                    color: kWhite,
+                                    size: 14,
+                                  ),
+                                ),
+                              ),
+                              10.sBW,
+                            ],
                             const Icon(Icons.location_on_rounded, color: primary, size: 20),
                             10.sBW,
                             Column(
@@ -106,6 +129,7 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
                           decoration: BoxDecoration(
                             color: kGreen.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: kGreen.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [
@@ -145,17 +169,26 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: InkWell(
-                            onTap: () => setState(() => _selectedTradeFilter = filter['id']!),
+                            onTap: () {
+                              setState(() => _selectedTradeFilter = filter['id']!);
+                            },
                             borderRadius: BorderRadius.circular(20),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isSelected ? primary : darkBg.withValues(alpha: 0.9),
+                                color: isSelected ? primary : darkBg.withValues(alpha: 0.92),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color: isSelected ? primary : darkBorder,
                                 ),
+                                boxShadow: [
+                                  if (isSelected)
+                                    BoxShadow(
+                                      color: primary.withValues(alpha: 0.35),
+                                      blurRadius: 8,
+                                    ),
+                                ],
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -194,84 +227,226 @@ class _CustomerLiveMapScreenState extends State<CustomerLiveMapScreen> {
               right: 16,
               bottom: 16,
               child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: darkBg.withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: primary.withValues(alpha: 0.4)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: primary.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: darkBg.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: primary.withValues(alpha: 0.4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: primary.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.flash_on_rounded, color: primary, size: 20),
                             ),
-                            child: const Icon(Icons.flash_on_rounded, color: primary, size: 20),
+                            10.sBW,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nearest Captain: 6 Mins Away',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: kWhite,
+                                  ),
+                                ),
+                                Text(
+                                  'Direct payment via UPI / Cash upon completion',
+                                  style: GoogleFonts.outfit(fontSize: 11, color: fontGrey),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '₹450',
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: primary,
                           ),
-                          10.sBW,
-                          Column(
+                        ),
+                      ],
+                    ),
+                    14.sBH,
+                    CustomButton(
+                      text: 'Request Nearest Captain in 60s',
+                      icon: Icons.send_rounded,
+                      height: 48,
+                      onPressed: () {
+                        context.push(
+                          AppRoutes.createBooking,
+                          extra: {
+                            'category': CategoryModel(id: 1, slug: 'plumber', name: 'Plumber Repair'),
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+            ),
+
+          // Selected Captain Detail Card
+          if (_selectedCaptain != null)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF131924),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: primary.withValues(alpha: 0.5), width: 1.4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: primary.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Stack(
+                          children: [
+                            AppVectorAssets.networkImage(
+                              url: _selectedCaptain!.avatar ?? AppVectorAssets.avatarCaptain1,
+                              width: 52,
+                              height: 52,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: kBlack,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.verified_rounded, color: kGreen, size: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                        12.sBW,
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Nearest Captain: 6 Mins Away',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    _selectedCaptain!.name,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: kWhite,
+                                    ),
+                                  ),
+                                  6.sBW,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: kGreen.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${_selectedCaptain!.eta} ETA',
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: kGreen,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Direct payment via UPI / Cash upon completion',
-                                style: GoogleFonts.outfit(fontSize: 11, color: fontGrey),
+                              3.sBH,
+                              Row(
+                                children: [
+                                  const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                                  3.sBW,
+                                  Text(
+                                    '${_selectedCaptain!.rating} Pro • ${_selectedCaptain!.trade} • ${_selectedCaptain!.distance}',
+                                    style: GoogleFonts.outfit(fontSize: 12, color: fontGrey),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      Text(
-                        '₹450',
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: primary,
                         ),
-                      ),
-                    ],
-                  ),
-                  14.sBH,
-                  CustomButton(
-                    text: 'Request Nearest Captain in 60s',
-                    icon: Icons.send_rounded,
-                    height: 48,
-                    onPressed: () {
-                      context.push(
-                        AppRoutes.createBooking,
-                        extra: {
-                          'category': CategoryModel(id: 1, slug: 'plumber', name: 'Plumber Repair'),
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
-          ),
+                        // Call Captain quick action
+                        IconButton(
+                          tooltip: 'Call Captain',
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('📞 Calling ${_selectedCaptain!.name} (${_selectedCaptain!.phone})...'),
+                                backgroundColor: kGreen,
+                                duration: const Duration(seconds: 2),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.phone_rounded, color: kGreen, size: 22),
+                        ),
+                        IconButton(
+                          onPressed: () => setState(() => _selectedCaptain = null),
+                          icon: const Icon(Icons.close_rounded, color: fontGrey, size: 20),
+                        ),
+                      ],
+                    ),
+                    14.sBH,
+                    CustomButton(
+                      text: 'Book ${_selectedCaptain!.name} Now (₹${_selectedCaptain!.priceRupees})',
+                      icon: Icons.bolt_rounded,
+                      height: 48,
+                      onPressed: () {
+                        context.push(
+                          AppRoutes.createBooking,
+                          extra: {
+                            'category': CategoryModel(
+                              id: 1,
+                              slug: _selectedCaptain!.tradeSlug,
+                              name: _selectedCaptain!.trade,
+                            ),
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.1, end: 0),
+            ),
         ],
       ),
     );

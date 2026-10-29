@@ -10,12 +10,15 @@ import 'package:kaam_fast/utils/constants/app_constants.dart';
 import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/status_badge.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class CustomerBookingsHistoryScreen extends StatefulWidget {
-  const CustomerBookingsHistoryScreen({super.key});
+  final bool isTab;
+  const CustomerBookingsHistoryScreen({super.key, this.isTab = false});
 
   @override
   State<CustomerBookingsHistoryScreen> createState() => _CustomerBookingsHistoryScreenState();
@@ -144,10 +147,8 @@ class _CustomerBookingsHistoryScreenState extends State<CustomerBookingsHistoryS
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab ? null : const AppBackButton(fallbackRoute: AppRoutes.customerHome),
         title: Text(
           'My Bookings',
           style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),
@@ -245,37 +246,76 @@ class _CustomerBookingsHistoryScreenState extends State<CustomerBookingsHistoryS
     final isActive = ['matching', 'offered', 'accepted', 'en_route', 'arrived', 'in_progress'].contains(booking.status);
     final isCompleted = booking.status == 'completed';
 
+    final photoUrl = AppVectorAssets.getServiceImage(booking.category?.slug ?? 'plumber');
+
     return Container(
       decoration: BoxDecoration(
-        color: darkSurface,
+        color: const Color(0xFF141A26),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isActive ? primary.withValues(alpha: 0.5) : darkBorder,
-          width: isActive ? 1.5 : 1.0,
+          color: isActive ? primary.withValues(alpha: 0.6) : darkBorder,
+          width: isActive ? 1.4 : 1.0,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+          if (isActive)
+            BoxShadow(
+              color: primary.withValues(alpha: 0.12),
+              blurRadius: 16,
+            ),
+        ],
       ),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Service Photo & Title Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                booking.category?.name ?? 'Home Service',
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: kWhite,
+              AppVectorAssets.networkImage(
+                url: photoUrl,
+                width: 54,
+                height: 54,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              12.sBW,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            booking.category?.name ?? 'Home Service',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: kWhite,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        8.sBW,
+                        StatusBadge(status: booking.status),
+                      ],
+                    ),
+                    4.sBH,
+                    Text(
+                      booking.createdAt != null ? dateFormat.format(booking.createdAt!) : '',
+                      style: GoogleFonts.outfit(fontSize: 12, color: fontGrey),
+                    ),
+                  ],
                 ),
               ),
-              StatusBadge(status: booking.status),
             ],
-          ),
-          4.sBH,
-          Text(
-            booking.createdAt != null ? dateFormat.format(booking.createdAt!) : '',
-            style: GoogleFonts.outfit(fontSize: 12, color: fontGrey),
           ),
           12.sBH,
           Row(
@@ -299,17 +339,31 @@ class _CustomerBookingsHistoryScreenState extends State<CustomerBookingsHistoryS
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: emeraldGradient,
-                    ),
-                    child: const Icon(Icons.person, color: kWhite, size: 20),
+                  Stack(
+                    children: [
+                      AppVectorAssets.networkImage(
+                        url: AppVectorAssets.avatarCaptain1,
+                        width: 40,
+                        height: 40,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(1.5),
+                          decoration: const BoxDecoration(
+                            color: kBlack,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.verified_rounded, color: kGreen, size: 12),
+                        ),
+                      ),
+                    ],
                   ),
                   12.sBW,
                   Expanded(
@@ -325,7 +379,7 @@ class _CustomerBookingsHistoryScreenState extends State<CustomerBookingsHistoryS
                             const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
                             4.sBW,
                             Text(
-                              '${booking.worker!.ratingAverage ?? 4.9} ⭐ Verified Pro',
+                              '${booking.worker!.ratingAverage ?? 4.9} Verified Pro',
                               style: GoogleFonts.outfit(fontSize: 11, color: fontGrey),
                             ),
                           ],

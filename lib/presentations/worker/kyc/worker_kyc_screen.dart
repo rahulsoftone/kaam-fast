@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kaam_fast/data/network/dio_client.dart';
@@ -10,6 +9,8 @@ import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/custom_text_field.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class WorkerKycScreen extends StatefulWidget {
   const WorkerKycScreen({super.key});
@@ -99,6 +100,7 @@ class _WorkerKycScreenState extends State<WorkerKycScreen> {
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
+        leading: const AppBackButton(fallbackRoute: AppRoutes.workerDashboard),
         title: Text(
           'KYC Verification',
           style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: kWhite),
@@ -133,10 +135,6 @@ class _WorkerKycScreenState extends State<WorkerKycScreen> {
             ),
           ),
         ],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => context.pop(),
-        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

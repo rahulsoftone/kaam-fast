@@ -7,8 +7,10 @@ import 'package:kaam_fast/model/booking/category_model.dart';
 import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/custom_text_field.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class CreateBookingScreen extends StatefulWidget {
@@ -94,10 +96,7 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
               : 'New Service Request',
           style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: kWhite),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => context.pop(),
-        ),
+        leading: const AppBackButton(fallbackRoute: AppRoutes.customerHome),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -105,6 +104,104 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Hero Service Image Card with Rich Backdrop
+              Container(
+                height: 125,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: primary.withValues(alpha: 0.4), width: 1.3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      blurRadius: 16,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      AppVectorAssets.networkImage(
+                        url: AppVectorAssets.getServiceImage(widget.initialCategory?.slug ?? 'plumber'),
+                        fit: BoxFit.cover,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            stops: const [0.0, 0.65, 1.0],
+                            colors: [
+                              const Color(0xFF0F172A).withValues(alpha: 0.95),
+                              const Color(0xFF0F172A).withValues(alpha: 0.82),
+                              Colors.black.withValues(alpha: 0.35),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: primary.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: primary.withValues(alpha: 0.5)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.flash_on_rounded, color: primaryLight, size: 12),
+                                  4.sBW,
+                                  Text(
+                                    '⚡ 60s RACE DISPATCH • 15 MIN ARRIVAL',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: primaryLight,
+                                      letterSpacing: 0.6,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            6.sBH,
+                            Text(
+                              widget.initialCategory?.name ?? 'Professional Home Service',
+                              style: GoogleFonts.outfit(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: kWhite,
+                              ),
+                            ),
+                            4.sBH,
+                            Row(
+                              children: [
+                                const Icon(Icons.verified_rounded, color: kGreen, size: 14),
+                                4.sBW,
+                                Text(
+                                  'Direct payment to Captain • Zero escrow lock',
+                                  style: GoogleFonts.outfit(fontSize: 11, color: fontGrey),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              20.sBH,
+
               // Voice Note Hold Card if isVoice
               if (widget.isVoice) ...[
                 GestureDetector(
@@ -191,25 +288,56 @@ class _CreateBookingScreenState extends State<CreateBookingScreen> {
               ),
               16.sBH,
 
-              // Quick Chips
+              // Quick Chips with rich descriptions
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
-                children: [150, 250, 300, 500, 800].map((amount) {
+                children: [
+                  {'val': 150, 'tag': 'Quick Fix'},
+                  {'val': 250, 'tag': 'Minor Repair'},
+                  {'val': 300, 'tag': 'Standard (Popular)'},
+                  {'val': 500, 'tag': 'Major Work'},
+                  {'val': 800, 'tag': 'Deep Overhaul'},
+                ].map((item) {
+                  final amount = item['val'] as int;
+                  final tag = item['tag'] as String;
                   final isSelected = _selectedAmount == amount;
-                  return ChoiceChip(
-                    label: Text('₹$amount', style: GoogleFonts.outfit(fontWeight: FontWeight.w700)),
-                    selected: isSelected,
-                    selectedColor: primary,
-                    backgroundColor: darkSurface,
-                    labelStyle: TextStyle(color: isSelected ? kWhite : fontGrey),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: isSelected ? primary : darkBorder),
+                  return InkWell(
+                    onTap: () => setState(() => _selectedAmount = amount),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? primary.withValues(alpha: 0.18) : darkSurface,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected ? primary : darkBorder,
+                          width: isSelected ? 1.5 : 1.0,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '₹$amount',
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected ? primary : kWhite,
+                            ),
+                          ),
+                          6.sBW,
+                          Text(
+                            tag,
+                            style: GoogleFonts.outfit(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected ? primaryLight : fontGrey,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    onSelected: (selected) {
-                      if (selected) setState(() => _selectedAmount = amount);
-                    },
                   );
                 }).toList(),
               ),

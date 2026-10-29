@@ -11,6 +11,7 @@ import 'package:kaam_fast/presentations/auth/bloc/auth_state.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -98,9 +99,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           appBar: AppBar(
             backgroundColor: darkBg,
             elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-              onPressed: () => context.pop(),
+            leading: AppBackButton(
+              onPressed: () => SafeNav.popOrFallback(
+                context,
+                fallbackRoute: AppRoutes.login,
+                extra: {'role': widget.role},
+              ),
             ),
           ),
           body: SafeArea(

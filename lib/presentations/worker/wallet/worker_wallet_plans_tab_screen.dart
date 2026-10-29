@@ -69,8 +69,8 @@ class _WorkerWalletPlansTabScreenState extends State<WorkerWalletPlansTabScreen>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          WorkerWalletScreen(),
-          WorkerSubscriptionScreen(),
+          WorkerWalletScreen(isTab: true),
+          WorkerSubscriptionScreen(isTab: true),
         ],
       ),
     );

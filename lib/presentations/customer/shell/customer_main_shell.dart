@@ -21,7 +21,7 @@ class _CustomerMainShellState extends State<CustomerMainShell> {
   final List<Widget> _screens = const [
     CustomerHomeScreen(),
     CustomerLiveMapScreen(),
-    CustomerBookingsHistoryScreen(),
+    CustomerBookingsHistoryScreen(isTab: true),
     CustomerProfileScreen(),
   ];
 
@@ -33,12 +33,19 @@ class _CustomerMainShellState extends State<CustomerMainShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkBg,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && mounted) {
+          setState(() => _currentIndex = 0);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: darkBg,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: darkSurface,
@@ -66,8 +73,9 @@ class _CustomerMainShellState extends State<CustomerMainShell> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _navItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;

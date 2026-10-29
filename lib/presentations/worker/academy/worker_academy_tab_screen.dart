@@ -69,8 +69,8 @@ class _WorkerAcademyTabScreenState extends State<WorkerAcademyTabScreen>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          WorkerCoursesScreen(),
-          WorkerCategorySelectionScreen(),
+          WorkerCoursesScreen(isTab: true),
+          WorkerCategorySelectionScreen(isTab: true),
         ],
       ),
     );

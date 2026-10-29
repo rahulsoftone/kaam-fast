@@ -5,6 +5,8 @@ import 'package:kaam_fast/data/network/dio_client.dart';
 import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class NotificationModel {
   final String id;
@@ -164,10 +166,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> with SingleTi
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const AppBackButton(fallbackRoute: AppRoutes.customerHome),
         title: Text(
           'Notifications',
           style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),

@@ -146,7 +146,7 @@ class _WorkerJobsTabScreenState extends State<WorkerJobsTabScreen> {
               height: 480,
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(20)),
-                child: WorkerJobHistoryScreen(),
+                child: WorkerJobHistoryScreen(isEmbedded: true),
               ),
             ),
 

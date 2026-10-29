@@ -8,6 +8,7 @@ import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/animated_radar.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/interactive_map_canvas.dart';
 import 'package:kaam_fast/utils/custom_widgets/status_badge.dart';
@@ -170,22 +171,46 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
                 // Worker Matched Card
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: darkSurface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: darkBorder),
+                    color: const Color(0xFF141A26),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: primary.withValues(alpha: 0.4), width: 1.3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                      BoxShadow(
+                        color: primary.withValues(alpha: 0.1),
+                        blurRadius: 16,
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: amberGradient,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.person_rounded, color: kWhite, size: 36),
+                      Stack(
+                        children: [
+                          AppVectorAssets.networkImage(
+                            url: AppVectorAssets.avatarCaptain1,
+                            width: 60,
+                            height: 60,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: kBlack,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.verified_rounded, color: kGreen, size: 16),
+                            ),
+                          ),
+                        ],
                       ),
                       16.sBW,
                       Expanded(

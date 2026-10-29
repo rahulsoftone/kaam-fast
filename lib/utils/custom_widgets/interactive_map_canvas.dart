@@ -1,13 +1,14 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kaam_fast/model/booking/category_model.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
-import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapTechnicianPin {
@@ -19,8 +20,11 @@ class MapTechnicianPin {
   final int totalJobs;
   final LatLng position;
   final String eta;
+  final String distance;
+  final String phone;
   final int priceRupees;
   final IconData icon;
+  final String? avatar;
 
   const MapTechnicianPin({
     required this.id,
@@ -31,8 +35,11 @@ class MapTechnicianPin {
     required this.totalJobs,
     required this.position,
     required this.eta,
+    required this.distance,
+    required this.phone,
     required this.priceRupees,
     required this.icon,
+    this.avatar,
   });
 }
 
@@ -46,6 +53,10 @@ class InteractiveMapCanvas extends StatefulWidget {
   final bool showControls;
   final bool showTopRadarBanner;
   final String? categoryFilter;
+  final bool showSelectedCardInside;
+  final double? topControlsPadding;
+  final LatLng? customCenter;
+  final double? initialZoom;
 
   const InteractiveMapCanvas({
     super.key,
@@ -58,6 +69,10 @@ class InteractiveMapCanvas extends StatefulWidget {
     this.showControls = true,
     this.showTopRadarBanner = false,
     this.categoryFilter,
+    this.showSelectedCardInside = false,
+    this.topControlsPadding,
+    this.customCenter,
+    this.initialZoom,
   });
 
   @override
@@ -69,7 +84,7 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
   late final MapController _mapController;
   late final AnimationController _pulseController;
   MapTechnicianPin? _selectedPin;
-  bool _isDarkMap = true;
+  bool _isDarkMap = false;
 
   // Customer Base Location (Sector 62, Noida)
   static const LatLng _customerLocation = LatLng(28.6280, 77.3760);
@@ -95,8 +110,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
       totalJobs: 142,
       position: LatLng(28.6318, 77.3725),
       eta: '6 mins',
+      distance: '1.2 km',
+      phone: '+91 98765 43210',
       priceRupees: 450,
       icon: Icons.plumbing_rounded,
+      avatar: AppVectorAssets.avatarCaptain1,
     ),
     MapTechnicianPin(
       id: 't2',
@@ -107,8 +125,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
       totalJobs: 98,
       position: LatLng(28.6242, 77.3812),
       eta: '11 mins',
+      distance: '2.1 km',
+      phone: '+91 98112 34567',
       priceRupees: 500,
       icon: Icons.electric_bolt_rounded,
+      avatar: AppVectorAssets.avatarCaptain2,
     ),
     MapTechnicianPin(
       id: 't3',
@@ -119,8 +140,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
       totalJobs: 215,
       position: LatLng(28.6355, 77.3692),
       eta: '9 mins',
+      distance: '1.8 km',
+      phone: '+91 98990 12345',
       priceRupees: 650,
       icon: Icons.ac_unit_rounded,
+      avatar: AppVectorAssets.avatarCaptain3,
     ),
     MapTechnicianPin(
       id: 't4',
@@ -131,8 +155,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
       totalJobs: 76,
       position: LatLng(28.6215, 77.3685),
       eta: '14 mins',
+      distance: '2.8 km',
+      phone: '+91 98711 99887',
       priceRupees: 550,
       icon: Icons.carpenter_rounded,
+      avatar: AppVectorAssets.avatarCaptain1,
     ),
     MapTechnicianPin(
       id: 't5',
@@ -143,8 +170,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
       totalJobs: 110,
       position: LatLng(28.6292, 77.3845),
       eta: '8 mins',
+      distance: '1.5 km',
+      phone: '+91 98100 55443',
       priceRupees: 400,
       icon: Icons.format_paint_rounded,
+      avatar: AppVectorAssets.avatarCaptain2,
     ),
   ];
 
@@ -154,8 +184,29 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
     _mapController = MapController();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
     )..repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant InteractiveMapCanvas oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.categoryFilter != oldWidget.categoryFilter) {
+      if (widget.categoryFilter != null && widget.categoryFilter != 'all') {
+        final match = _nearbyTechnicians
+            .where((t) => t.tradeSlug == widget.categoryFilter)
+            .firstOrNull;
+        if (match != null) {
+          _mapController.move(match.position, 15.2);
+          setState(() => _selectedPin = match);
+          widget.onPinChanged?.call(match);
+        }
+      } else {
+        _mapController.move(_customerLocation, 14.8);
+        setState(() => _selectedPin = null);
+        widget.onPinChanged?.call(null);
+      }
+    }
   }
 
   @override
@@ -167,22 +218,31 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
 
   void _zoomIn() {
     final currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom + 1).clamp(10.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom + 1).clamp(10.0, 18.0),
+    );
   }
 
   void _zoomOut() {
     final currentZoom = _mapController.camera.zoom;
-    _mapController.move(_mapController.camera.center, (currentZoom - 1).clamp(10.0, 18.0));
+    _mapController.move(
+      _mapController.camera.center,
+      (currentZoom - 1).clamp(10.0, 18.0),
+    );
   }
 
   void _recenter() {
-    _mapController.move(_customerLocation, 14.8);
+    final target = widget.customCenter ?? _customerLocation;
+    _mapController.move(target, widget.initialZoom ?? 14.8);
     setState(() => _selectedPin = null);
+    widget.onPinChanged?.call(null);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('📍 Map Recentered to Sector 62, Noida'),
         duration: Duration(milliseconds: 900),
         backgroundColor: primary,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -209,34 +269,41 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         ? 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
         : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
+    final centerPoint = widget.customCenter ?? _customerLocation;
+    final startZoom = widget.initialZoom ?? 14.8;
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Real Interactive FlutterMap
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: _customerLocation,
-            initialZoom: 14.8,
-            minZoom: 10.0,
-            maxZoom: 18.0,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all,
-            ),
-            onTap: (tapPosition, point) {
-              if (_selectedPin != null) {
-                setState(() => _selectedPin = null);
-                widget.onPinChanged?.call(null);
-              }
-            },
-          ),
-          children: [
-            // Map Street Tiles
-            TileLayer(
-              urlTemplate: tileUrl,
-              userAgentPackageName: 'com.example.kaam_fast',
-              fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            ),
+        // Real Interactive FlutterMap with OpenStreetMap / CartoDB tiles
+        Positioned.fill(
+          child: Container(
+            color: _isDarkMap ? const Color(0xFF131924) : const Color(0xFFE5E7EB),
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: centerPoint,
+                initialZoom: startZoom,
+                minZoom: 10.0,
+                maxZoom: 18.0,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all,
+                ),
+                onTap: (tapPosition, point) {
+                  if (_selectedPin != null) {
+                    setState(() => _selectedPin = null);
+                    widget.onPinChanged?.call(null);
+                  }
+                },
+              ),
+              children: [
+                // Map Street Tiles (CartoDB Dark Basemap & OpenStreetMap)
+                TileLayer(
+                  urlTemplate: tileUrl,
+                  userAgentPackageName: 'com.kaamfast.app',
+                  fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  maxZoom: 19,
+                ),
 
             // 3.5 km Radar Circle & Area Scan
             CircleLayer(
@@ -246,7 +313,7 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                   radius: 1800, // 1.8km radius boundary
                   useRadiusInMeter: true,
                   color: primary.withValues(alpha: 0.08),
-                  borderColor: primary.withValues(alpha: 0.4),
+                  borderColor: primary.withValues(alpha: 0.45),
                   borderStrokeWidth: 1.5,
                 ),
               ],
@@ -260,7 +327,7 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                   Polyline(
                     points: _routeCoordinates,
                     strokeWidth: 8.0,
-                    color: primary.withValues(alpha: 0.3),
+                    color: primary.withValues(alpha: 0.35),
                   ),
                   // Inner High-Vis Line
                   Polyline(
@@ -286,7 +353,8 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                 // Nearby Captain Markers (Only if showTechnicians is true)
                 if (widget.showTechnicians) ...[
                   ..._nearbyTechnicians.where((tech) {
-                    if (widget.categoryFilter == null || widget.categoryFilter == 'all') {
+                    if (widget.categoryFilter == null ||
+                        widget.categoryFilter == 'all') {
                       return true;
                     }
                     return tech.tradeSlug == widget.categoryFilter;
@@ -308,19 +376,33 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                     );
                   }),
                 ],
-
-                // Live Moving Partner Marker (when tracking active)
-                if (widget.showTrackingRoute)
-                  Marker(
-                    point: _calculateMovingPartnerPosition(0.4),
-                    width: 52,
-                    height: 52,
-                    child: _buildMovingPartnerMarker(),
-                  ),
               ],
             ),
+
+            // Live Moving Partner Marker (smooth animated transit along road route)
+            if (widget.showTrackingRoute)
+              AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, _) {
+                  final movingPos = _calculateMovingPartnerPosition(
+                    0.10 + (0.80 * _pulseController.value),
+                  );
+                  return MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: movingPos,
+                        width: 52,
+                        height: 52,
+                        child: _buildMovingPartnerMarker(),
+                      ),
+                    ],
+                  );
+                },
+              ),
           ],
         ),
+      ),
+    ),
 
         // Live Radar Scanning Banner (Top-Center)
         if (widget.showTopRadarBanner)
@@ -355,7 +437,12 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                           boxShadow: [
                             BoxShadow(
                               color: kGreen.withValues(
-                                alpha: 0.3 + (0.7 * math.sin(_pulseController.value * math.pi)),
+                                alpha:
+                                    0.3 +
+                                    (0.7 *
+                                        math.sin(
+                                          _pulseController.value * math.pi,
+                                        )),
                               ),
                               blurRadius: 8,
                               spreadRadius: 2,
@@ -402,14 +489,37 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         if (widget.showControls)
           Positioned(
             right: 16,
-            top: widget.showTopRadarBanner ? 14 : 110,
+            top:
+                widget.topControlsPadding ??
+                (widget.showTopRadarBanner ? 14 : 140),
             child: Column(
               children: [
                 _mapActionButton(
-                  icon: Icons.layers_rounded,
-                  tooltip: 'Toggle Theme',
+                  icon:
+                      _isDarkMap
+                          ? Icons.light_mode_rounded
+                          : Icons.dark_mode_rounded,
+                  tooltip:
+                      _isDarkMap ? 'Light Street Map' : 'Dark Obsidian Map',
                   onTap: () {
                     setState(() => _isDarkMap = !_isDarkMap);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          _isDarkMap
+                              ? '🌙 Dark Obsidian CartoDB Tiles Active'
+                              : '☀️ Light Street OpenStreetMap Active',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: kWhite,
+                          ),
+                        ),
+                        duration: const Duration(milliseconds: 900),
+                        backgroundColor: darkSurface,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
                   },
                   isAccent: _isDarkMap,
                 ),
@@ -436,8 +546,8 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
             ),
           ),
 
-        // Selected Captain Detailed Bottom Card
-        if (_selectedPin != null)
+        // Selected Captain Detailed Bottom Card (only if showSelectedCardInside is enabled)
+        if (widget.showSelectedCardInside && _selectedPin != null)
           Positioned(
             left: 16,
             right: 16,
@@ -452,7 +562,8 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
     return AnimatedBuilder(
       animation: _pulseController,
       builder: (context, _) {
-        final scale = 1.0 + (0.25 * math.sin(_pulseController.value * 2 * math.pi));
+        final scale =
+            1.0 + (0.25 * math.sin(_pulseController.value * 2 * math.pi));
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -497,12 +608,15 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           decoration: BoxDecoration(
-            color: darkSurface,
+            color: isSelected ? primary : darkSurface,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: isSelected ? primary : darkBorder, width: 1.2),
+            border: Border.all(
+              color: isSelected ? primaryLight : darkBorder,
+              width: 1.2,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: 0.45),
                 blurRadius: 4,
               ),
             ],
@@ -512,31 +626,73 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
             style: GoogleFonts.outfit(
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
-              color: isSelected ? primary : fontGrey,
+              color: isSelected ? kBlack : primaryLight,
             ),
           ),
         ),
         2.sBH,
         // Captain Avatar / Icon Circle
-        Container(
-          width: isSelected ? 40 : 34,
-          height: isSelected ? 40 : 34,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: isSelected ? amberGradient : emeraldGradient,
-            border: Border.all(
-              color: isSelected ? primary : kWhite,
-              width: isSelected ? 2.5 : 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: (isSelected ? primary : kGreen).withValues(alpha: 0.5),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: isSelected ? 42 : 36,
+              height: isSelected ? 42 : 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? primary : kGreen,
+                  width: isSelected ? 2.5 : 1.8,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: (isSelected ? primary : kGreen).withValues(
+                      alpha: 0.5,
+                    ),
+                    blurRadius: isSelected ? 12 : 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Icon(tech.icon, color: isSelected ? kBlack : kWhite, size: isSelected ? 20 : 17),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child:
+                    tech.avatar != null
+                        ? AppVectorAssets.networkImage(
+                          url: tech.avatar!,
+                          fit: BoxFit.cover,
+                        )
+                        : Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient:
+                                isSelected ? amberGradient : emeraldGradient,
+                          ),
+                          child: Icon(
+                            tech.icon,
+                            color: isSelected ? kBlack : kWhite,
+                            size: 18,
+                          ),
+                        ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: kBlack,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  tech.icon,
+                  color: isSelected ? primary : kGreen,
+                  size: 10,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -552,13 +708,19 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         border: Border.all(color: kWhite, width: 2.5),
         boxShadow: [
           BoxShadow(
-            color: primary.withValues(alpha: 0.6),
+            color: primary.withValues(alpha: 0.65),
             blurRadius: 14,
             spreadRadius: 2,
           ),
         ],
       ),
-      child: const Icon(Icons.delivery_dining_rounded, color: kBlack, size: 24),
+      child: const Center(
+        child: Icon(
+          Icons.delivery_dining_rounded,
+          color: kBlack,
+          size: 24,
+        ),
+      ),
     );
   }
 
@@ -582,14 +744,25 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         children: [
           Row(
             children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: emeraldGradient,
-                ),
-                child: Icon(pin.icon, color: kWhite, size: 26),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(25),
+                child:
+                    pin.avatar != null
+                        ? AppVectorAssets.networkImage(
+                          url: pin.avatar!,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                        : Container(
+                          width: 50,
+                          height: 50,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: emeraldGradient,
+                          ),
+                          child: Icon(pin.icon, color: kWhite, size: 26),
+                        ),
               ),
               12.sBW,
               Expanded(
@@ -607,18 +780,29 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                           ),
                         ),
                         6.sBW,
-                        const Icon(Icons.verified_rounded, color: kGreen, size: 16),
+                        const Icon(
+                          Icons.verified_rounded,
+                          color: kGreen,
+                          size: 16,
+                        ),
                       ],
                     ),
                     3.sBH,
                     Row(
                       children: [
                         Text(
-                          pin.trade,
-                          style: GoogleFonts.outfit(fontSize: 12, color: fontGrey),
+                          '${pin.trade} • ${pin.distance}',
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: fontGrey,
+                          ),
                         ),
                         8.sBW,
-                        const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 14,
+                        ),
                         2.sBW,
                         Text(
                           '${pin.rating} (${pin.totalJobs} jobs)',
@@ -638,7 +822,11 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
                   setState(() => _selectedPin = null);
                   widget.onPinChanged?.call(null);
                 },
-                icon: const Icon(Icons.close_rounded, color: fontGrey, size: 20),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: fontGrey,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -721,11 +909,7 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onTap,
-          child: Icon(
-            icon,
-            color: isAccent ? kBlack : kWhite,
-            size: 20,
-          ),
+          child: Icon(icon, color: isAccent ? kBlack : kWhite, size: 20),
         ),
       ),
     );

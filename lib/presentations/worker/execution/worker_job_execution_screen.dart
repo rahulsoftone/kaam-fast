@@ -11,6 +11,7 @@ import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/status_badge.dart';
+import 'package:kaam_fast/utils/custom_widgets/interactive_map_canvas.dart';
 import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class WorkerJobExecutionScreen extends StatefulWidget {
@@ -274,7 +275,149 @@ class _WorkerJobExecutionScreenState extends State<WorkerJobExecutionScreen> {
                 ),
               ).animate().fadeIn(),
 
-              24.sBH,
+              20.sBH,
+
+              // Partner Live Road Navigation Map (During En-Route / Accepted)
+              if (_jobStep == 'accepted' || _jobStep == 'en_route') ...[
+                Container(
+                  height: 230,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: darkSurface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: primary.withValues(alpha: 0.4)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      children: [
+                        const InteractiveMapCanvas(
+                          showTechnicians: false,
+                          showTrackingRoute: true,
+                          showControls: false,
+                        ),
+                        // Navigation Turn Overlay
+                        Positioned(
+                          top: 12,
+                          left: 12,
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: darkBg.withValues(alpha: 0.94),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: primary.withValues(alpha: 0.5)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: kGreen,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.turn_right_rounded, color: kBlack, size: 16),
+                                ),
+                                10.sBW,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'In 250m turn right to Sector 62',
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                          color: kWhite,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Route to Aman Verma • 2.1 KM (7 mins ETA)',
+                                        style: GoogleFonts.outfit(fontSize: 10, color: fontGrey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: primary.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'Live Route',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // GPS Recenter & Full Route Button
+                        Positioned(
+                          bottom: 12,
+                          right: 12,
+                          child: InkWell(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('🗺️ Opening turn-by-turn navigation in external GPS...'),
+                                  backgroundColor: primary,
+                                  duration: Duration(seconds: 1),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: darkBg.withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: primary),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.navigation_rounded, color: primary, size: 14),
+                                  6.sBW,
+                                  Text(
+                                    'Open Navigation',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
+                20.sBH,
+              ],
 
               // Work Timer Widget if Job Started
               if (_jobStep == 'started') ...[

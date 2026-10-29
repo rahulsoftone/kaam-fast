@@ -33,35 +33,43 @@ class _WorkerMainShellState extends State<WorkerMainShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkBg,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: darkSurface,
-          border: const Border(top: BorderSide(color: darkBorder, width: 1.0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.4),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && mounted) {
+          setState(() => _currentIndex = 0);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: darkBg,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(0, Icons.radar_rounded, 'Duty Radar'),
-                _navItem(1, Icons.handyman_rounded, 'My Jobs'),
-                _navItem(2, Icons.account_balance_wallet_rounded, 'Wallet'),
-                _navItem(3, Icons.school_rounded, 'Academy'),
-              ],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: darkSurface,
+            border: const Border(top: BorderSide(color: darkBorder, width: 1.0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _navItem(0, Icons.radar_rounded, 'Duty Radar'),
+                  _navItem(1, Icons.handyman_rounded, 'My Jobs'),
+                  _navItem(2, Icons.account_balance_wallet_rounded, 'Wallet'),
+                  _navItem(3, Icons.school_rounded, 'Academy'),
+                ],
+              ),
             ),
           ),
         ),

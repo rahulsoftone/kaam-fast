@@ -10,6 +10,9 @@ import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/status_badge.dart';
 
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
+
 class WorkerJobRecord {
   final String id;
   final String categoryName;
@@ -41,7 +44,8 @@ class WorkerJobRecord {
 }
 
 class WorkerJobHistoryScreen extends StatefulWidget {
-  const WorkerJobHistoryScreen({super.key});
+  final bool isEmbedded;
+  const WorkerJobHistoryScreen({super.key, this.isEmbedded = false});
 
   @override
   State<WorkerJobHistoryScreen> createState() => _WorkerJobHistoryScreenState();
@@ -277,18 +281,17 @@ class _WorkerJobHistoryScreenState extends State<WorkerJobHistoryScreen> with Si
 
     return Scaffold(
       backgroundColor: darkBg,
-      appBar: AppBar(
-        backgroundColor: darkBg,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Completed Jobs & Earnings',
-          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),
-        ),
-      ),
+      appBar: widget.isEmbedded
+          ? null
+          : AppBar(
+              backgroundColor: darkBg,
+              elevation: 0,
+              leading: const AppBackButton(fallbackRoute: AppRoutes.workerDashboard),
+              title: Text(
+                'Completed Jobs & Earnings',
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),
+              ),
+            ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: primary))
           : RefreshIndicator(

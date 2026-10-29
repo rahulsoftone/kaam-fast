@@ -6,8 +6,11 @@ import 'package:kaam_fast/utils/constants/app_constants.dart';
 import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
+import 'package:kaam_fast/utils/custom_widgets/app_vector_assets.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/custom_text_field.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class CustomerRatingScreen extends StatefulWidget {
   final String bookingId;
@@ -138,7 +141,7 @@ class _CustomerRatingScreenState extends State<CustomerRatingScreen> {
                 text: 'Done',
                 onPressed: () {
                   Navigator.pop(ctx);
-                  Navigator.pop(context);
+                  SafeNav.popOrFallback(context, fallbackRoute: AppRoutes.customerHome);
                 },
               ),
             ],
@@ -155,10 +158,7 @@ class _CustomerRatingScreenState extends State<CustomerRatingScreen> {
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const AppBackButton(fallbackRoute: AppRoutes.customerHome),
         title: Text(
           'Rate Experience',
           style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),
@@ -172,14 +172,40 @@ class _CustomerRatingScreenState extends State<CustomerRatingScreen> {
             Center(
               child: Column(
                 children: [
-                  Container(
-                    width: 76,
-                    height: 76,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: emeraldGradient,
-                    ),
-                    child: const Icon(Icons.handyman_rounded, color: kWhite, size: 38),
+                  Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: primary.withValues(alpha: 0.6), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primary.withValues(alpha: 0.25),
+                              blurRadius: 18,
+                            ),
+                          ],
+                        ),
+                        child: AppVectorAssets.networkImage(
+                          url: AppVectorAssets.avatarCaptain1,
+                          width: 76,
+                          height: 76,
+                          borderRadius: BorderRadius.circular(38),
+                        ),
+                      ),
+                      Positioned(
+                        right: 4,
+                        bottom: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: kBlack,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.verified_rounded, color: kGreen, size: 18),
+                        ),
+                      ),
+                    ],
                   ),
                   14.sBH,
                   Text(

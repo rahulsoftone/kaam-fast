@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kaam_fast/data/network/dio_client.dart';
 import 'package:kaam_fast/utils/constants/app_urls.dart';
 import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class WorkerSubscriptionScreen extends StatefulWidget {
-  const WorkerSubscriptionScreen({super.key});
+  final bool isTab;
+  const WorkerSubscriptionScreen({super.key, this.isTab = false});
 
   @override
   State<WorkerSubscriptionScreen> createState() => _WorkerSubscriptionScreenState();
@@ -57,13 +59,11 @@ class _WorkerSubscriptionScreenState extends State<WorkerSubscriptionScreen> {
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab ? null : const AppBackButton(fallbackRoute: AppRoutes.workerDashboard),
         title: Text(
           'Pro & Max Plans',
           style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: kWhite),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(

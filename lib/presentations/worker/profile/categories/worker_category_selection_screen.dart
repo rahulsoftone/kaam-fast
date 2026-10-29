@@ -7,6 +7,8 @@ import 'package:kaam_fast/utils/constants/color_picker.dart';
 import 'package:kaam_fast/utils/constants/size_box_extention.dart';
 import 'package:kaam_fast/utils/custom_widgets/button/custom_button.dart';
 import 'package:kaam_fast/utils/custom_widgets/custom_text_field.dart';
+import 'package:kaam_fast/utils/custom_widgets/safe_navigation.dart';
+import 'package:kaam_fast/utils/routes/app_routes.dart';
 
 class TradeCategory {
   final int id;
@@ -23,7 +25,8 @@ class TradeCategory {
 }
 
 class WorkerCategorySelectionScreen extends StatefulWidget {
-  const WorkerCategorySelectionScreen({super.key});
+  final bool isTab;
+  const WorkerCategorySelectionScreen({super.key, this.isTab = false});
 
   @override
   State<WorkerCategorySelectionScreen> createState() => _WorkerCategorySelectionScreenState();
@@ -149,7 +152,9 @@ class _WorkerCategorySelectionScreenState extends State<WorkerCategorySelectionS
             backgroundColor: kGreen,
           ),
         );
-        Navigator.pop(context);
+        if (!widget.isTab) {
+          SafeNav.popOrFallback(context, fallbackRoute: AppRoutes.workerDashboard);
+        }
       }
     }
   }
@@ -161,10 +166,8 @@ class _WorkerCategorySelectionScreenState extends State<WorkerCategorySelectionS
       appBar: AppBar(
         backgroundColor: darkBg,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: kWhite, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: !widget.isTab,
+        leading: widget.isTab ? null : const AppBackButton(fallbackRoute: AppRoutes.workerDashboard),
         title: Text(
           'Trade Skills & UPI Setup',
           style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: kWhite),
