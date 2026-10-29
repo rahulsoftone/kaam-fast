@@ -1,0 +1,148 @@
+﻿COLLECTION: KaamFast API v1 (mobile apps)
+
+=== SECTION: 1. Common (both apps) ===
+  [FOLDER] Ad banner (3 endpoints)
+     - [GET] The single best-matching ad for this location (and category, if given), or none  [GET /ads] -> {{base_url}}/v1/ads?latitude=28.6139&longitude=77.2090
+     - [POST] Records that the shown ad was tapped (A5B  [POST /ads/{impression}/click] -> {{base_url}}/v1/ads/:impression/click
+     - [GET] The banner image itself, behind a signed, expiring URL (A1 Rule 4 / A3  [GET /ads/banners/{banner}] -> {{base_url}}/v1/ads/banners/:banner
+  [FOLDER] App start (1 endpoints)
+     - [GET] Health check  [GET /health] -> {{base_url}}/v1/health
+  [FOLDER] Category picker (1 endpoints)
+     - [GET] The kinds of work that can be booked, in display order, with today's extra-hour rate for e  [GET /categories] -> {{base_url}}/v1/categories
+  [FOLDER] Realtime (Reverb) channel auth (1 endpoints)
+     - [POST] Authorize a realtime channel subscription (`channel_name`, `socket_id` in the body, as Ech  [POST /broadcasting/auth] -> {{base_url}}/v1/broadcasting/auth
+
+=== SECTION: 2. Customer app ===
+  [FOLDER] 01 Login and registration (3 endpoints)
+     - [POST] Send a one-time code by SMS  [POST /customer/auth/otp/request] -> {{base_url}}/v1/customer/auth/otp/request
+     - [POST] Check the code and log in (creating the account on first use)  [POST /customer/auth/otp/verify] -> {{base_url}}/v1/customer/auth/otp/verify
+     - [POST] Log out of this device  [POST /customer/auth/logout] -> {{base_url}}/v1/customer/auth/logout
+  [FOLDER] 02 Profile and notifications (4 endpoints)
+     - [GET] Notifications, newest first, with how many are unread  [GET /customer/notifications] -> {{base_url}}/v1/customer/notifications?
+     - [POST] Mark notifications as read  [POST /customer/notifications/read] -> {{base_url}}/v1/customer/notifications/read
+     - [GET] The logged-in customer's profile  [GET /customer/me] -> {{base_url}}/v1/customer/me
+     - [PUT] Save the customer's name and language  [PUT /customer/me] -> {{base_url}}/v1/customer/me
+  [FOLDER] 03 Policies and consent (4 endpoints)
+     - [GET] The version in force for each policy type, with this user's acceptance state, plus the Gri  [GET /customer/policies] -> {{base_url}}/v1/customer/policies
+     - [GET] Required policies this user has not yet accepted at the version now in force  [GET /customer/policies/pending] -> {{base_url}}/v1/customer/policies/pending
+     - [GET] The current version of one policy type, with its full text  [GET /customer/policies/{type}] -> {{base_url}}/v1/customer/policies/:type
+     - [POST] Accept the version in force  [POST /customer/policies/{type}/accept] -> {{base_url}}/v1/customer/policies/:type/accept
+  [FOLDER] 04 Book a job (4 endpoints)
+     - [POST] Save a job request as a draft  [POST /customer/bookings] -> {{base_url}}/v1/customer/bookings
+     - [POST] Save a job request as a draft, parsed from a short voice recording instead of typed fields  [POST /customer/bookings/voice] -> {{base_url}}/v1/customer/bookings/voice
+     - [POST] The customer's explicit "yes, look for a worker"  [POST /customer/bookings/{booking}/confirm] -> {{base_url}}/v1/customer/bookings/:booking/confirm
+     - [POST] Cancel a booking, at any stage up to the job starting  [POST /customer/bookings/{booking}/cancel] -> {{base_url}}/v1/customer/bookings/:booking/cancel
+  [FOLDER] 05 My bookings and tracking (3 endpoints)
+     - [GET] The customer's bookings, newest first  [GET /customer/bookings] -> {{base_url}}/v1/customer/bookings?
+     - [GET] One booking, with its status, the worker once there is one, and the actions the customer c  [GET /customer/bookings/{booking}] -> {{base_url}}/v1/customer/bookings/:booking
+     - [POST] Book the same job again  [POST /customer/bookings/{booking}/rebook] -> {{base_url}}/v1/customer/bookings/:booking/rebook
+  [FOLDER] 06 Job in progress (code, completion, dispute, rating) (5 endpoints)
+     - [POST] Get a new arrival code to read out to the worker when they arrive  [POST /customer/bookings/{booking}/arrival-code] -> {{base_url}}/v1/customer/bookings/:booking/arrival-code
+     - [POST] Confirm the worker's work is done  [POST /customer/bookings/{booking}/confirm-completion] -> {{base_url}}/v1/customer/bookings/:booking/confirm-completion
+     - [POST] Report a problem with a job that is in progress or waiting for confirmation  [POST /customer/bookings/{booking}/dispute] -> {{base_url}}/v1/customer/bookings/:booking/dispute
+     - [POST] Report that the worker never came, once the waiting time since accepting is over (`409 NO_  [POST /customer/bookings/{booking}/report-no-show] -> {{base_url}}/v1/customer/bookings/:booking/report-no-show
+     - [POST] Rate a completed job, 1-5 stars with an optional comment  [POST /customer/bookings/{booking}/rate] -> {{base_url}}/v1/customer/bookings/:booking/rate
+  [FOLDER] 07 Safety (SOS) and support (4 endpoints)
+     - [POST] Raise an SOS  [POST /customer/sos] -> {{base_url}}/v1/customer/sos
+     - [GET] The raiser's own SOS incident  [GET /customer/sos/{sos}] -> {{base_url}}/v1/customer/sos/:sos
+     - [POST] Raise a support ticket  [POST /customer/support-tickets] -> {{base_url}}/v1/customer/support-tickets
+     - [GET] The raiser's own ticket  [GET /customer/support-tickets/{ticket}] -> {{base_url}}/v1/customer/support-tickets/:ticket
+  [FOLDER] 08 Refer and earn (1 endpoints)
+     - [GET] This user's own referral code (made the first time it is asked for) and a summary of how m  [GET /customer/referral] -> {{base_url}}/v1/customer/referral
+  [FOLDER] 09 Appeal a suspension (2 endpoints)
+     - [POST] Appeal the hold on this account  [POST /customer/appeal] -> {{base_url}}/v1/customer/appeal
+     - [GET] The most recent appeal this account raised, if any  [GET /customer/appeal] -> {{base_url}}/v1/customer/appeal
+
+=== SECTION: 3. Worker app ===
+  [FOLDER] 01 Login and registration (3 endpoints)
+     - [POST] Send a one-time code by SMS  [POST /worker/auth/otp/request] -> {{base_url}}/v1/worker/auth/otp/request
+     - [POST] Check the code and log in (creating the account on first use)  [POST /worker/auth/otp/verify] -> {{base_url}}/v1/worker/auth/otp/verify
+     - [POST] Log out of this device  [POST /worker/auth/logout] -> {{base_url}}/v1/worker/auth/logout
+  [FOLDER] 02 Profile and notifications (5 endpoints)
+     - [GET] Notifications, newest first, with how many are unread  [GET /worker/notifications] -> {{base_url}}/v1/worker/notifications?
+     - [POST] Mark notifications as read  [POST /worker/notifications/read] -> {{base_url}}/v1/worker/notifications/read
+     - [GET] The logged-in worker's own profile, including KYC status, duty state, rating and categorie  [GET /worker/me] -> {{base_url}}/v1/worker/me
+     - [PUT] Save the worker's name, language and the kinds of work they do (1 to 10 categories)  [PUT /worker/me] -> {{base_url}}/v1/worker/me
+     - [PUT] Set or clear the worker's own UPI VPA (Scan-to-Pay, A5A)  [PUT /worker/me/upi-vpa] -> {{base_url}}/v1/worker/me/upi-vpa
+  [FOLDER] 03 KYC verification (2 endpoints)
+     - [GET] The worker's own KYC status and, if there is one, their latest submission â?" including the   [GET /worker/kyc] -> {{base_url}}/v1/worker/kyc
+     - [POST] Submit a selfie and an ID document for review  [POST /worker/kyc] -> {{base_url}}/v1/worker/kyc
+  [FOLDER] 04 Policies and consent (4 endpoints)
+     - [GET] The version in force for each policy type, with this user's acceptance state, plus the Gri  [GET /worker/policies] -> {{base_url}}/v1/worker/policies
+     - [GET] Required policies this user has not yet accepted at the version now in force  [GET /worker/policies/pending] -> {{base_url}}/v1/worker/policies/pending
+     - [GET] The current version of one policy type, with its full text  [GET /worker/policies/{type}] -> {{base_url}}/v1/worker/policies/:type
+     - [POST] Accept the version in force  [POST /worker/policies/{type}/accept] -> {{base_url}}/v1/worker/policies/:type/accept
+  [FOLDER] 05 Go on duty and location (2 endpoints)
+     - [POST] Go on or off duty  [POST /worker/duty] -> {{base_url}}/v1/worker/duty
+     - [PUT] Send the worker's current position while on duty (every few seconds while a job is live, l  [PUT /worker/location] -> {{base_url}}/v1/worker/location
+  [FOLDER] 06 Job offers (the 45-second screen) (3 endpoints)
+     - [GET] The jobs currently offered to this worker, closest first, each with the seconds left to ac  [GET /worker/offers] -> {{base_url}}/v1/worker/offers
+     - [POST] Accept an offered job  [POST /worker/offers/{booking}/accept] -> {{base_url}}/v1/worker/offers/:booking/accept
+     - [POST] Turn an offer down  [POST /worker/offers/{booking}/reject] -> {{base_url}}/v1/worker/offers/:booking/reject
+  [FOLDER] 07 My jobs (2 endpoints)
+     - [GET] The worker's own jobs, newest first  [GET /worker/bookings] -> {{base_url}}/v1/worker/bookings?
+     - [GET] One job the worker holds, or is being offered  [GET /worker/bookings/{booking}] -> {{base_url}}/v1/worker/bookings/:booking
+  [FOLDER] 08 Job in progress (8 endpoints)
+     - [POST] Tell the customer the worker is on the way  [POST /worker/bookings/{booking}/en-route] -> {{base_url}}/v1/worker/bookings/:booking/en-route
+     - [POST] Tell the customer the worker has arrived  [POST /worker/bookings/{booking}/arrived] -> {{base_url}}/v1/worker/bookings/:booking/arrived
+     - [POST] Start the job  [POST /worker/bookings/{booking}/start] -> {{base_url}}/v1/worker/bookings/:booking/start
+     - [POST] Say the job is done and ask the customer to confirm  [POST /worker/bookings/{booking}/request-completion] -> {{base_url}}/v1/worker/bookings/:booking/request-completion
+     - [POST] Cancel a job that has not started (accepted, on the way, or arrived)  [POST /worker/bookings/{booking}/cancel] -> {{base_url}}/v1/worker/bookings/:booking/cancel
+     - [POST] Report a problem with a job that is in progress or waiting for confirmation  [POST /worker/bookings/{booking}/dispute] -> {{base_url}}/v1/worker/bookings/:booking/dispute
+     - [POST] Report that the customer was not there, once the waiting time since arriving is over (`409  [POST /worker/bookings/{booking}/report-no-show] -> {{base_url}}/v1/worker/bookings/:booking/report-no-show
+     - [POST] Enter the four-digit code the customer reads out  [POST /worker/bookings/{booking}/verify-arrival] -> {{base_url}}/v1/worker/bookings/:booking/verify-arrival
+  [FOLDER] 09 Wallet and recharge (7 endpoints)
+     - [GET] The worker's invoices, newest first  [GET /worker/invoices] -> {{base_url}}/v1/worker/invoices?
+     - [GET] One invoice  [GET /worker/invoices/{invoice}] -> {{base_url}}/v1/worker/invoices/:invoice
+     - [GET] The worker's recharge attempts, newest first, including ones that failed or expired  [GET /worker/wallet/recharges] -> {{base_url}}/v1/worker/wallet/recharges?
+     - [POST] Start a recharge  [POST /worker/wallet/recharges] -> {{base_url}}/v1/worker/wallet/recharges
+     - [GET] One of the worker's recharges  [GET /worker/wallet/recharges/{recharge}] -> {{base_url}}/v1/worker/wallet/recharges/:recharge
+     - [GET] The balance and everything the wallet screen needs in one call  [GET /worker/wallet] -> {{base_url}}/v1/worker/wallet
+     - [GET] The wallet history, newest first  [GET /worker/wallet/entries] -> {{base_url}}/v1/worker/wallet/entries?
+  [FOLDER] 10 Pro / Max subscription (3 endpoints)
+     - [GET] The worker's subscription screen in one call  [GET /worker/subscription] -> {{base_url}}/v1/worker/subscription
+     - [POST] Subscribe to Pro or Max, or switch plan  [POST /worker/subscription] -> {{base_url}}/v1/worker/subscription
+     - [POST] Cancel the current plan (default), or withdraw a scheduled upgrade/downgrade by passing it  [POST /worker/subscription/cancel] -> {{base_url}}/v1/worker/subscription/cancel
+  [FOLDER] 11 Learn and Earn (3 endpoints)
+     - [GET] Every active course, with this worker's own best attempt at each, if any  [GET /worker/courses] -> {{base_url}}/v1/worker/courses
+     - [GET] One course with its quiz questions (never the answer key) and this worker's attempt histor  [GET /worker/courses/{course}] -> {{base_url}}/v1/worker/courses/:course
+     - [POST] Submit answers for a course's quiz  [POST /worker/courses/{course}/attempts] -> {{base_url}}/v1/worker/courses/:course/attempts
+  [FOLDER] 12 Safety (SOS) and support (4 endpoints)
+     - [POST] Raise an SOS  [POST /worker/sos] -> {{base_url}}/v1/worker/sos
+     - [GET] The raiser's own SOS incident  [GET /worker/sos/{sos}] -> {{base_url}}/v1/worker/sos/:sos
+     - [POST] Raise a support ticket  [POST /worker/support-tickets] -> {{base_url}}/v1/worker/support-tickets
+     - [GET] The raiser's own ticket  [GET /worker/support-tickets/{ticket}] -> {{base_url}}/v1/worker/support-tickets/:ticket
+  [FOLDER] 13 Refer and earn (1 endpoints)
+     - [GET] This user's own referral code (made the first time it is asked for) and a summary of how m  [GET /worker/referral] -> {{base_url}}/v1/worker/referral
+  [FOLDER] 14 Appeal a suspension (2 endpoints)
+     - [POST] Appeal the hold on this account  [POST /worker/appeal] -> {{base_url}}/v1/worker/appeal
+     - [GET] The most recent appeal this account raised, if any  [GET /worker/appeal] -> {{base_url}}/v1/worker/appeal
+
+=== SECTION: 4. Merchant app (ads) ===
+  [FOLDER] 01 Login and registration (3 endpoints)
+     - [POST] Send a one-time code by SMS  [POST /merchant/auth/otp/request] -> {{base_url}}/v1/merchant/auth/otp/request
+     - [POST] Check the code and log in (creating the account on first use)  [POST /merchant/auth/otp/verify] -> {{base_url}}/v1/merchant/auth/otp/verify
+     - [POST] Log out of this device  [POST /merchant/auth/logout] -> {{base_url}}/v1/merchant/auth/logout
+  [FOLDER] 02 Profile and notifications (4 endpoints)
+     - [GET] Notifications, newest first, with how many are unread  [GET /merchant/notifications] -> {{base_url}}/v1/merchant/notifications?
+     - [POST] Mark notifications as read  [POST /merchant/notifications/read] -> {{base_url}}/v1/merchant/notifications/read
+     - [GET] The logged-in merchant's own profile  [GET /merchant/me] -> {{base_url}}/v1/merchant/me
+     - [PUT] Save the merchant's business name, language and (optional) email  [PUT /merchant/me] -> {{base_url}}/v1/merchant/me
+  [FOLDER] 03 Banners (2 endpoints)
+     - [POST] Upload a banner image  [POST /merchant/banners] -> {{base_url}}/v1/merchant/banners
+     - [GET] The merchant's own banners, newest first  [GET /merchant/banners] -> {{base_url}}/v1/merchant/banners
+  [FOLDER] 04 Campaigns (6 endpoints)
+     - [POST] Set up a targeted banner placement  [POST /merchant/campaigns] -> {{base_url}}/v1/merchant/campaigns
+     - [GET] The merchant's own campaigns, newest first, each with its impression and click counts  [GET /merchant/campaigns] -> {{base_url}}/v1/merchant/campaigns
+     - [GET] One of the merchant's own campaigns, with its impression and click counts  [GET /merchant/campaigns/{campaign}] -> {{base_url}}/v1/merchant/campaigns/:campaign
+     - [POST] Fund the campaign's budget via Cashfree  [POST /merchant/campaigns/{campaign}/fund] -> {{base_url}}/v1/merchant/campaigns/:campaign/fund
+     - [POST] Pause a running campaign  [POST /merchant/campaigns/{campaign}/pause] -> {{base_url}}/v1/merchant/campaigns/:campaign/pause
+     - [POST] Resume a paused campaign  [POST /merchant/campaigns/{campaign}/resume] -> {{base_url}}/v1/merchant/campaigns/:campaign/resume
+
+=== SECTION: 5. Webhooks (server to server - NOT for the app) ===
+  [FOLDER] Webhooks (5 endpoints)
+     - [POST] Cashfree's Subscriptions webhook (mandate authorized/on hold/cancelled/expired, each renew  [POST /webhooks/cashfree-subscriptions] -> {{base_url}}/v1/webhooks/cashfree-subscriptions
+     - [POST] Cashfree's payment webhook  [POST /webhooks/cashfree] -> {{base_url}}/v1/webhooks/cashfree
+     - [POST] Exotel has connected a call and wants to know what happens next  [POST /webhooks/exotel/incoming] -> {{base_url}}/v1/webhooks/exotel/incoming
+     - [POST] Exotel finished recording what the caller said, and has the pincode they keyed in  [POST /webhooks/exotel/recording] -> {{base_url}}/v1/webhooks/exotel/recording
+     - [POST] The caller pressed 1 to confirm the booking, or anything else to cancel it  [POST /webhooks/exotel/confirm] -> {{base_url}}/v1/webhooks/exotel/confirm
